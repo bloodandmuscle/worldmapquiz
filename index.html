@@ -7,50 +7,39 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="app">
-      <header class="topbar">
-        <h1>🌍 World Map Quiz</h1>
-        <p>Ülkeyi haritada bul, başkentini tahmin et, puanı yükselt!</p>
+    <div class="screen start-screen" id="startScreen">
+      <h1>🌍 World Map Quiz</h1>
+      <p>Kıta seç, ülkeleri bul ve doğru bildikçe haritadan sil!</p>
+      <button id="enterBtn">Başla</button>
+    </div>
+
+    <div class="screen continent-screen hidden" id="continentScreen">
+      <h2>Kıta Seç</h2>
+      <div id="continentList" class="continent-list"></div>
+    </div>
+
+    <div class="screen game-screen hidden" id="gameScreen">
+      <header class="game-top">
+        <h2 id="gameTitle">Quiz</h2>
+        <div class="stats">
+          <span>Süre: <b id="timer">0</b>s</span>
+          <span>Kalan: <b id="remaining">0</b></span>
+          <span>Doğru: <b id="correct">0</b></span>
+        </div>
       </header>
 
-      <main class="layout">
-        <section class="map-card">
-          <div class="stats">
-            <div><strong>Skor:</strong> <span id="score">0</span></div>
-            <div><strong>Soru:</strong> <span id="questionCount">0</span>/<span id="totalQuestions">0</span></div>
-            <div><strong>Doğru:</strong> <span id="correctCount">0</span></div>
-            <div><strong>Süre:</strong> <span id="timer">0</span>s</div>
-          </div>
+      <div class="question" id="question">Soru hazırlanıyor...</div>
+      <div class="map-wrap" id="mapWrap">
+        <img id="mapImage" alt="Kıta haritası" />
+        <svg id="countryLayer"></svg>
+      </div>
 
-          <div class="controls">
-            <label>
-              Mod:
-              <select id="modeSelect">
-                <option value="country">Haritada Ülke Bul</option>
-                <option value="capital">Başkenti Tahmin Et</option>
-              </select>
-            </label>
-            <button id="startBtn">Oyunu Başlat</button>
-            <button id="restartBtn" disabled>Yeniden Başlat</button>
-          </div>
+      <div class="actions">
+        <button id="hintBtn">İpucu</button>
+        <button id="backBtn">Kıta Seçimine Dön</button>
+      </div>
 
-          <div class="question-box" id="questionBox">Başlamak için "Oyunu Başlat" tuşuna bas.</div>
-
-          <div class="map-wrapper">
-            <img id="worldMap" src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg" alt="Dünya Haritası" draggable="false" />
-            <button id="hintBtn" class="hint-btn" disabled>İpucu</button>
-          </div>
-
-          <div class="result" id="result"></div>
-        </section>
-
-        <aside class="panel-card">
-          <h2>Seçenekler</h2>
-          <div id="options" class="options"></div>
-          <h3>Sonuçlar</h3>
-          <ul id="history" class="history"></ul>
-        </aside>
-      </main>
+      <div id="message" class="message"></div>
     </div>
 
     <script src="data/countries.js"></script>
