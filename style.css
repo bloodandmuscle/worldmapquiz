@@ -1,0 +1,49 @@
+:root {
+  color-scheme: dark;
+  --bg: #111827;
+  --card: #1f2937;
+  --border: #374151;
+  --ok: #10b981;
+  --bad: #ef4444;
+  --text: #f3f4f6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #1e3a8a, var(--bg));
+  color: var(--text);
+}
+.app { max-width: 1100px; margin: auto; padding: 1rem; }
+.topbar { text-align: center; margin-bottom: 1rem; }
+.layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+.map-card, .panel-card {
+  background: color-mix(in srgb, var(--card) 92%, black);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+}
+.stats { display: grid; grid-template-columns: repeat(4, minmax(80px, 1fr)); gap: .5rem; }
+.controls { margin: .8rem 0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+button, select {
+  background: #2563eb; color: white; border: none; padding: .6rem .9rem; border-radius: 10px; font-weight: 600;
+}
+button:disabled { opacity: .5; cursor: not-allowed; }
+.question-box {
+  min-height: 3rem; padding: .7rem .9rem; border: 1px dashed #60a5fa; border-radius: 10px; margin-bottom: .7rem;
+}
+.map-wrapper { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+#worldMap { width: 100%; display: block; user-select: none; touch-action: manipulation; }
+.hint-btn { position: absolute; right: .6rem; top: .6rem; background: #f59e0b; }
+.result { margin-top: .7rem; min-height: 1.5rem; font-weight: 700; }
+.options { display: grid; gap: .45rem; }
+.option-btn { width: 100%; text-align: left; background: #334155; }
+.option-btn:hover { background: #475569; }
+.history { list-style: none; padding: 0; margin: .5rem 0 0; max-height: 300px; overflow: auto; }
+.history li { padding: .35rem .4rem; border-bottom: 1px solid #374151; font-size: .94rem; }
+.ok { color: var(--ok); }
+.bad { color: var(--bad); }
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
