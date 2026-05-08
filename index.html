@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Map Quiz</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <h1>🌍 World Map Quiz</h1>
+        <p>Ülkeyi haritada bul, başkentini tahmin et, puanı yükselt!</p>
+      </header>
+
+      <main class="layout">
+        <section class="map-card">
+          <div class="stats">
+            <div><strong>Skor:</strong> <span id="score">0</span></div>
+            <div><strong>Soru:</strong> <span id="questionCount">0</span>/<span id="totalQuestions">0</span></div>
+            <div><strong>Doğru:</strong> <span id="correctCount">0</span></div>
+            <div><strong>Süre:</strong> <span id="timer">0</span>s</div>
+          </div>
+
+          <div class="controls">
+            <label>
+              Mod:
+              <select id="modeSelect">
+                <option value="country">Haritada Ülke Bul</option>
+                <option value="capital">Başkenti Tahmin Et</option>
+              </select>
+            </label>
+            <button id="startBtn">Oyunu Başlat</button>
+            <button id="restartBtn" disabled>Yeniden Başlat</button>
+          </div>
+
+          <div class="question-box" id="questionBox">Başlamak için "Oyunu Başlat" tuşuna bas.</div>
+
+          <div class="map-wrapper">
+            <img id="worldMap" src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg" alt="Dünya Haritası" draggable="false" />
+            <button id="hintBtn" class="hint-btn" disabled>İpucu</button>
+          </div>
+
+          <div class="result" id="result"></div>
+        </section>
+
+        <aside class="panel-card">
+          <h2>Seçenekler</h2>
+          <div id="options" class="options"></div>
+          <h3>Sonuçlar</h3>
+          <ul id="history" class="history"></ul>
+        </aside>
+      </main>
+    </div>
+
+    <script src="data/countries.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
