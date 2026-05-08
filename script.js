@@ -1,172 +1,128 @@
+const CONTINENTS = ["Asya", "Avrupa", "Afrika", "Kuzey Amerika", "Güney Amerika", "Okyanusya", "Antarktika"];
+const MAPS = {
+  "Asya": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Avrupa": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Afrika": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Kuzey Amerika": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Güney Amerika": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Okyanusya": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg",
+  "Antarktika": "https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg"
+};
+
 const els = {
-  score: document.getElementById("score"),
-  questionCount: document.getElementById("questionCount"),
-  totalQuestions: document.getElementById("totalQuestions"),
-  correctCount: document.getElementById("correctCount"),
+  startScreen: document.getElementById("startScreen"),
+  continentScreen: document.getElementById("continentScreen"),
+  gameScreen: document.getElementById("gameScreen"),
+  enterBtn: document.getElementById("enterBtn"),
+  continentList: document.getElementById("continentList"),
+  gameTitle: document.getElementById("gameTitle"),
   timer: document.getElementById("timer"),
-  modeSelect: document.getElementById("modeSelect"),
-  startBtn: document.getElementById("startBtn"),
-  restartBtn: document.getElementById("restartBtn"),
-  questionBox: document.getElementById("questionBox"),
-  options: document.getElementById("options"),
-  result: document.getElementById("result"),
-  history: document.getElementById("history"),
-  worldMap: document.getElementById("worldMap"),
-  hintBtn: document.getElementById("hintBtn")
+  remaining: document.getElementById("remaining"),
+  correct: document.getElementById("correct"),
+  question: document.getElementById("question"),
+  mapImage: document.getElementById("mapImage"),
+  countryLayer: document.getElementById("countryLayer"),
+  hintBtn: document.getElementById("hintBtn"),
+  backBtn: document.getElementById("backBtn"),
+  message: document.getElementById("message")
 };
 
-const game = {
-  mode: "country",
-  questions: [],
-  index: 0,
-  score: 0,
-  correct: 0,
-  timer: 0,
-  interval: null,
-  current: null,
-  lock: false
-};
+const game = { continent: null, countries: [], remaining: [], current: null, correct: 0, time: 0, timer: null };
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+function switchScreen(name) {
+  [els.startScreen, els.continentScreen, els.gameScreen].forEach(el => el.classList.add("hidden"));
+  els[name].classList.remove("hidden");
 }
 
-function startGame() {
-  game.mode = els.modeSelect.value;
-  game.questions = shuffle(COUNTRY_DATA).slice(0, 25);
-  game.index = 0;
-  game.score = 0;
-  game.correct = 0;
-  game.timer = 0;
-  game.lock = false;
-  els.history.innerHTML = "";
-  els.result.textContent = "";
-  els.totalQuestions.textContent = game.questions.length;
-  els.startBtn.disabled = true;
-  els.restartBtn.disabled = false;
-  els.hintBtn.disabled = false;
-
-  clearInterval(game.interval);
-  game.interval = setInterval(() => {
-    game.timer += 1;
-    els.timer.textContent = String(game.timer);
-  }, 1000);
-
-  updateStats();
-  nextQuestion();
-}
-
-function updateStats() {
-  els.score.textContent = String(game.score);
-  els.questionCount.textContent = String(game.index);
-  els.correctCount.textContent = String(game.correct);
-}
-
-function nextQuestion() {
-  game.lock = false;
-  if (game.index >= game.questions.length) return endGame();
-
-  game.current = game.questions[game.index];
-  game.index += 1;
-  updateStats();
-
-  if (game.mode === "country") {
-    els.questionBox.textContent = `${game.current.flag} ${game.current.name} ülkesini haritada tıkla.`;
-    renderCountryModeOptions();
-  } else {
-    els.questionBox.textContent = `${game.current.flag} ${game.current.name} ülkesinin başkenti hangisi?`;
-    renderCapitalOptions();
-  }
-}
-
-function renderCapitalOptions() {
-  const wrongs = shuffle(COUNTRY_DATA.filter(c => c.name !== game.current.name))
-    .slice(0, 3)
-    .map(c => c.capital);
-  const opts = shuffle([game.current.capital, ...wrongs]);
-
-  els.options.innerHTML = "";
-  opts.forEach(opt => {
+function buildContinentButtons() {
+  els.continentList.innerHTML = "";
+  CONTINENTS.forEach(cont => {
+    const count = COUNTRY_DATA.filter(c => c.continent === cont).length;
     const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.textContent = opt;
-    btn.onclick = () => checkAnswer(opt === game.current.capital, `Doğru cevap: ${game.current.capital}`);
-    els.options.appendChild(btn);
+    btn.textContent = `${cont} (${count})`;
+    btn.disabled = count === 0;
+    btn.onclick = () => startGame(cont);
+    els.continentList.appendChild(btn);
   });
 }
 
-function renderCountryModeOptions() {
-  els.options.innerHTML = "";
-  const help = document.createElement("div");
-  help.textContent = "Haritada tahmini konuma dokun / tıkla.";
-  els.options.appendChild(help);
+function startGame(continent) {
+  clearInterval(game.timer);
+  game.continent = continent;
+  game.countries = COUNTRY_DATA.filter(c => c.continent === continent);
+  game.remaining = shuffle(game.countries);
+  game.current = null;
+  game.correct = 0;
+  game.time = 0;
+  els.timer.textContent = "0";
+  els.mapImage.src = MAPS[continent];
+  els.gameTitle.textContent = `${continent} Quiz`;
+  els.message.textContent = "";
+  drawCountryDots();
+  nextQuestion();
+  game.timer = setInterval(() => {
+    game.time += 1;
+    els.timer.textContent = String(game.time);
+  }, 1000);
+  switchScreen("gameScreen");
 }
 
-function mapClickHandler(e) {
-  if (!game.current || game.mode !== "country" || game.lock) return;
-
-  const rect = els.worldMap.getBoundingClientRect();
-  const clickX = ((e.clientX - rect.left) / rect.width) * 100;
-  const clickY = ((e.clientY - rect.top) / rect.height) * 100;
-
-  const dx = clickX - game.current.x;
-  const dy = clickY - game.current.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  const isCorrect = distance < 8.5;
-
-  checkAnswer(isCorrect, `${game.current.name} yaklaşık koordinat: %${game.current.x.toFixed(1)}, %${game.current.y.toFixed(1)}`);
+function drawCountryDots() {
+  els.countryLayer.innerHTML = "";
+  game.countries.forEach(c => {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", `${c.x}%`);
+    circle.setAttribute("cy", `${c.y}%`);
+    circle.setAttribute("r", "7");
+    circle.classList.add("country-dot");
+    circle.dataset.code = c.code;
+    circle.addEventListener("click", () => handleCountryClick(c.code));
+    els.countryLayer.appendChild(circle);
+  });
 }
 
-function checkAnswer(isCorrect, detail) {
-  if (game.lock) return;
-  game.lock = true;
-
-  if (isCorrect) {
-    game.score += 10;
-    game.correct += 1;
-    els.result.innerHTML = `<span class="ok">✅ Doğru! ${detail}</span>`;
-  } else {
-    els.result.innerHTML = `<span class="bad">❌ Yanlış! ${detail}</span>`;
-  }
-
-  const li = document.createElement("li");
-  li.className = isCorrect ? "ok" : "bad";
-  li.textContent = `${game.index}. ${game.current.flag} ${game.current.name} - ${isCorrect ? "Doğru" : "Yanlış"}`;
-  els.history.prepend(li);
-
-  updateStats();
-  setTimeout(nextQuestion, 900);
+function nextQuestion() {
+  if (game.remaining.length === 0) return finishGame();
+  game.current = game.remaining[0];
+  els.question.textContent = `${game.current.flag} ${game.current.name} ülkesini tıkla.`;
+  els.remaining.textContent = String(game.remaining.length);
+  els.correct.textContent = String(game.correct);
 }
 
-function endGame() {
-  clearInterval(game.interval);
-  els.questionBox.textContent = `Oyun bitti! Toplam skor: ${game.score} / ${game.questions.length * 10}`;
-  els.result.innerHTML = `<strong>Doğruluk:</strong> %${Math.round((game.correct / game.questions.length) * 100)}`;
-  els.startBtn.disabled = false;
-  els.hintBtn.disabled = true;
-}
-
-function showHint() {
+function handleCountryClick(code) {
   if (!game.current) return;
-  const c = game.current;
-  if (game.mode === "country") {
-    els.result.innerHTML = `<span>💡 İpucu: ${c.name}, ${c.capital} başkentli bir ülkedir.</span>`;
-  } else {
-    els.result.innerHTML = `<span>💡 İpucu: Başkent, ${c.name} ülkesinin en büyük siyasi merkezidir.</span>`;
+  const isCorrect = code === game.current.code;
+  if (!isCorrect) {
+    els.message.innerHTML = `<span class='bad'>Yanlış seçim. Hedef: ${game.current.name}</span>`;
+    return;
   }
+
+  const dot = [...els.countryLayer.querySelectorAll(".country-dot")].find(x => x.dataset.code === code);
+  if (dot) dot.classList.add("removed");
+  game.correct += 1;
+  game.remaining = game.remaining.filter(c => c.code !== code);
+  els.message.innerHTML = `<span class='ok'>Doğru! ${game.current.name} (${game.current.capital}) haritadan kaldırıldı.</span>`;
+  nextQuestion();
 }
 
-els.startBtn.addEventListener("click", startGame);
-els.restartBtn.addEventListener("click", startGame);
-els.hintBtn.addEventListener("click", showHint);
-els.worldMap.addEventListener("click", mapClickHandler);
-els.worldMap.addEventListener("touchstart", ev => {
-  const t = ev.touches[0];
-  if (!t) return;
-  mapClickHandler({ clientX: t.clientX, clientY: t.clientY });
-}, { passive: true });
+function finishGame() {
+  clearInterval(game.timer);
+  els.question.textContent = "Bölüm tamamlandı! 🎉";
+  els.remaining.textContent = "0";
+  els.message.innerHTML = `<span class='ok'>Tüm ülkeleri ${game.time} saniyede tamamladın.</span>`;
+}
+
+els.enterBtn.addEventListener("click", () => switchScreen("continentScreen"));
+els.backBtn.addEventListener("click", () => {
+  clearInterval(game.timer);
+  switchScreen("continentScreen");
+});
+els.hintBtn.addEventListener("click", () => {
+  if (!game.current) return;
+  els.message.textContent = `İpucu: Başkent ${game.current.capital}`;
+});
+
+buildContinentButtons();
+switchScreen("startScreen");
